@@ -20,7 +20,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
   bool _isChapterCommentsAtEndSupported() {
     String? readerMode;
     bool? showChapterComments;
-    
+
     if (widget.comicId != null &&
         widget.comicSource != null &&
         appdata.settings.isComicSpecificSettingsEnabled(
@@ -41,18 +41,18 @@ class _ReaderSettingsState extends State<ReaderSettings> {
       readerMode = appdata.settings['readerMode'] as String?;
       showChapterComments = appdata.settings['showChapterComments'] as bool?;
     }
-    
+
     // Must have showChapterComments enabled and be in gallery mode
     if (showChapterComments != true) return false;
-    
+
     return readerMode == 'galleryLeftToRight' ||
         readerMode == 'galleryRightToLeft';
   }
-  
+
   void _onShowChapterCommentsChanged() {
     // When showChapterComments is turned off, also turn off showChapterCommentsAtEnd
     bool? showChapterComments;
-    
+
     if (widget.comicId != null &&
         widget.comicSource != null &&
         appdata.settings.isComicSpecificSettingsEnabled(
@@ -78,7 +78,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
         appdata.settings['showChapterCommentsAtEnd'] = false;
       }
     }
-    
+
     setState(() {});
     widget.onChanged?.call("showChapterComments");
   }
@@ -92,6 +92,8 @@ class _ReaderSettingsState extends State<ReaderSettings> {
     bool isEnabledSpecificSettings =
         comicId != null &&
         appdata.settings.isComicSpecificSettingsEnabled(comicId, sourceKey);
+    bool useDeviceSpecificSettings =
+        comicId == null && appdata.settings.isDeviceSpecificSettingsEnabled();
 
     return SmoothCustomScrollView(
       slivers: [
@@ -128,6 +130,34 @@ class _ReaderSettingsState extends State<ReaderSettings> {
               Divider().toSliver(),
             ],
           ),
+        if (comicId == null)
+          SliverMainAxisGroup(
+            slivers: [
+              SwitchListTile(
+                title: Text("Enable device specific settings".tl),
+                value: useDeviceSpecificSettings,
+                onChanged: (b) {
+                  setState(() {
+                    appdata.settings.setEnabledDeviceSpecificSettings(b);
+                  });
+                },
+              ).toSliver(),
+              if (useDeviceSpecificSettings)
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        appdata.settings.resetDeviceReaderSettings();
+                      });
+                    },
+                    child: Text(
+                      "Clear specific reader settings for this device".tl,
+                    ),
+                  ),
+                ).toSliver(),
+              Divider().toSliver(),
+            ],
+          ),
         _SwitchSetting(
           title: "Tap to turn Pages".tl,
           settingKey: "enableTapToTurnPages",
@@ -136,6 +166,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
           title: "Reverse tap to turn Pages".tl,
@@ -145,6 +176,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
           title: "Page animation".tl,
@@ -154,6 +186,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SelectSetting(
           title: "Reading mode".tl,
@@ -179,6 +212,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SliderSetting(
           title: "Auto page turning interval".tl,
@@ -192,6 +226,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SliverAnimatedVisibility(
           visible: appdata.settings['readerMode']!.startsWith('gallery'),
@@ -209,6 +244,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ),
         ),
         SliverAnimatedVisibility(
@@ -226,6 +262,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ),
         ),
         SliverAnimatedVisibility(
@@ -241,6 +278,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ),
         ),
         SliverAnimatedVisibility(
@@ -256,6 +294,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ),
         ),
         _SwitchSetting(
@@ -267,6 +306,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
           title: 'Long press to zoom'.tl,
@@ -277,6 +317,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SliverAnimatedVisibility(
           visible: appdata.settings['enableLongPressToZoom'] == true,
@@ -289,6 +330,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ),
         ),
         _SwitchSetting(
@@ -300,6 +342,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         if (App.isAndroid)
           _SwitchSetting(
@@ -310,6 +353,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ).toSliver(),
         _SwitchSetting(
           title: "Display time & battery info in reader".tl,
@@ -319,6 +363,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
           title: "Show system status bar".tl,
@@ -328,6 +373,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SelectSetting(
           title: "Quick collect image".tl,
@@ -345,6 +391,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
                   .tl,
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _CallbackSetting(
           title: "Custom Image Processing".tl,
@@ -359,6 +406,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           max: 16,
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
           title: "Show Page Number".tl,
@@ -368,6 +416,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
           title: "Show Chapter Comments".tl,
@@ -375,6 +424,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           onChanged: _onShowChapterCommentsChanged,
           comicId: isEnabledSpecificSettings ? widget.comicId : null,
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SliverAnimatedVisibility(
           visible: _isChapterCommentsAtEndSupported(),
@@ -386,6 +436,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
             },
             comicId: isEnabledSpecificSettings ? widget.comicId : null,
             comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
           ),
         ),
       ],
