@@ -93,7 +93,8 @@ class _ReaderSettingsState extends State<ReaderSettings> {
         comicId != null &&
         appdata.settings.isComicSpecificSettingsEnabled(comicId, sourceKey);
     bool useDeviceSpecificSettings =
-        comicId == null && appdata.settings.isDeviceSpecificSettingsEnabled();
+        !isEnabledSpecificSettings &&
+        appdata.settings.isDeviceSpecificSettingsEnabled();
 
     return SmoothCustomScrollView(
       slivers: [
