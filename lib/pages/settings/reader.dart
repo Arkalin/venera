@@ -141,6 +141,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
                   setState(() {
                     appdata.settings.setEnabledDeviceSpecificSettings(b);
                   });
+                  appdata.saveData();
                 },
               ).toSliver(),
               if (useDeviceSpecificSettings)
@@ -150,6 +151,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
                       setState(() {
                         appdata.settings.resetDeviceReaderSettings();
                       });
+                      appdata.saveData();
                     },
                     child: Text(
                       "Clear specific reader settings for this device".tl,
